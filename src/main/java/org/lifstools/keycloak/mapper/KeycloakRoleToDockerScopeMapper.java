@@ -89,21 +89,21 @@ public class KeycloakRoleToDockerScopeMapper extends DockerAuthV2ProtocolMapper 
         log.debugf("Assigned user roles: %s", userRoleNames);
         // check if user's roles contain at least one of docker-pull or docker-push, deny access otherwise (empty resources)
         if (!userRoleNames.contains(DOCKER_PULL_ROLE) && !userRoleNames.contains(DOCKER_PUSH_ROLE)) {
-            log.warn("userRoleNames contained neither " + DOCKER_PULL_ROLE + " nor " + DOCKER_PUSH_ROLE);
+            log.debug("userRoleNames contained neither " + DOCKER_PULL_ROLE + " nor " + DOCKER_PUSH_ROLE);
             return drt;
         }
 
         // grant access based on user's assigned roles
-        final DockerAccess requestedAccess = new DockerAccess(requestedScope);
-        if (REGISTRY_RESOURCE.equals(requestedAccess.getName()) || REPOSITORY_RESOURCE.equals(requestedAccess.getName())) {
-            log.debugf("Processing resource: %s", requestedAccess.getName());
+        final DockerAccess requestedAccess = new DockerAccess();
+        if (REGISTRY_RESOURCE.equals(requestedAccess.getType()) || REPOSITORY_RESOURCE.equals(requestedAccess.getType())) {
+            log.debug("Processing resource " + requestedAccess.getType() + ":" + requestedAccess.getName());
             List<String> allowedActions = new LinkedList<>();
             if (userRoleNames.contains(DOCKER_PULL_ROLE)) {
-                log.debug("Granting pull access");
+                log.debug("Granting pull access to " + requestedAccess.getType() + ":" + requestedAccess.getName());
                 allowedActions.add("pull");
             }
             if (userRoleNames.contains(DOCKER_PUSH_ROLE)) {
-                log.debug("Granting push access");
+                log.debug("Granting push access to " + requestedAccess.getType() + ":" + requestedAccess.getName());
                 allowedActions.add("push");
             }
             requestedAccess.setActions(allowedActions);
