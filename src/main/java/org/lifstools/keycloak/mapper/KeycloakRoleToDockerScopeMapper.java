@@ -94,7 +94,7 @@ public class KeycloakRoleToDockerScopeMapper extends DockerAuthV2ProtocolMapper 
         }
 
         // grant access based on user's assigned roles
-        final DockerAccess requestedAccess = new DockerAccess();
+        final DockerAccess requestedAccess = new DockerAccess(requestedScope);
         if (REGISTRY_RESOURCE.equals(requestedAccess.getType()) || REPOSITORY_RESOURCE.equals(requestedAccess.getType())) {
             log.debug("Processing resource " + requestedAccess.getType() + ":" + requestedAccess.getName());
             List<String> allowedActions = new LinkedList<>();
@@ -107,8 +107,8 @@ public class KeycloakRoleToDockerScopeMapper extends DockerAuthV2ProtocolMapper 
                 allowedActions.add("push");
             }
             requestedAccess.setActions(allowedActions);
+            drt.getAccessItems().add(requestedAccess);
         }
-        drt.getAccessItems().add(requestedAccess);
         return drt;
     }
 
