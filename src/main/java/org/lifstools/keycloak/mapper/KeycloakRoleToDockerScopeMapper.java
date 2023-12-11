@@ -103,7 +103,11 @@ public class KeycloakRoleToDockerScopeMapper extends DockerAuthV2ProtocolMapper 
             if (userRoleNames.contains(DOCKER_PULL_ROLE) && userRoleNames.contains(DOCKER_PUSH_ROLE)) {
                 allowedActions.add("*");
             }
-        } else if (REGISTRY_RESOURCE.equals(requestedAccess.getType()) || REPOSITORY_RESOURCE.equals(requestedAccess.getType())) {
+            requestedAccess.setActions(allowedActions);
+            drt.getAccessItems().add(requestedAccess);
+            return drt;
+        }
+        if (REGISTRY_RESOURCE.equals(requestedAccess.getType()) || REPOSITORY_RESOURCE.equals(requestedAccess.getType())) {
             log.debug("Processing resource " + requestedAccess.getType() + ":" + requestedAccess.getName());
             List<String> allowedActions = new LinkedList<>();
             if (userRoleNames.contains(DOCKER_PULL_ROLE)) {
