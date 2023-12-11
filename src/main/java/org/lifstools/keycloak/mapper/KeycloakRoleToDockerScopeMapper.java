@@ -46,6 +46,8 @@ public class KeycloakRoleToDockerScopeMapper extends DockerAuthV2ProtocolMapper 
 
     private static final String DOCKER_PUSH_ROLE = "docker-push";
 
+    private static final String DOCKER_DELETE_ROLE = "docker-delete";
+
     private static final String REGISTRY_RESOURCE = "registry";
 
     private static final String REPOSITORY_RESOURCE = "repository";
@@ -88,8 +90,8 @@ public class KeycloakRoleToDockerScopeMapper extends DockerAuthV2ProtocolMapper 
                 .map(role -> role.getName()).collect(Collectors.toSet());
         log.debugf("Assigned user roles: %s", userRoleNames);
         // check if user's roles contain at least one of docker-pull or docker-push, deny access otherwise (empty resources)
-        if (!userRoleNames.contains(DOCKER_PULL_ROLE) && !userRoleNames.contains(DOCKER_PUSH_ROLE)) {
-            log.debug("userRoleNames contained neither " + DOCKER_PULL_ROLE + " nor " + DOCKER_PUSH_ROLE);
+        if (!userRoleNames.contains(DOCKER_PULL_ROLE) && !userRoleNames.contains(DOCKER_PUSH_ROLE) && !userRoleNames.contains(DOCKER_DELETE_ROLE)) {
+            log.debug("userRoleNames contained neither " + DOCKER_PULL_ROLE + " nor " + DOCKER_PUSH_ROLE + " nor " + DOCKER_DELETE_ROLE);
             return drt;
         }
 
@@ -111,6 +113,10 @@ public class KeycloakRoleToDockerScopeMapper extends DockerAuthV2ProtocolMapper 
             if (userRoleNames.contains(DOCKER_PUSH_ROLE)) {
                 log.debug("Granting push access to " + requestedAccess.getType() + ":" + requestedAccess.getName());
                 allowedActions.add("push");
+            }
+            if (userRoleNames.contains(DOCKER_DELETE_ROLE)) {
+                log.debug("Granting delete access to " + requestedAccess.getType() + ":" + requestedAccess.getName());
+                allowedActions.add("delete");
             }
             requestedAccess.setActions(allowedActions);
             drt.getAccessItems().add(requestedAccess);
